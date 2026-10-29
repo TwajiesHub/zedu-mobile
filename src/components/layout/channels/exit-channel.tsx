@@ -89,7 +89,7 @@ export const ExitChannelSheet = forwardRef<any, Props>(
             <View style={styles.warningBox}>
               <AppText style={styles.warningText}>
                 Are you sure you want to leave{' '}
-                <AppText variant="bold" style={{ color: '#333' }}>
+                <AppText variant="bold" style={styles.warningTextEmphasis}>
                   "{groupName}"
                 </AppText>
                 ? You will no longer be able to send messages or see new updates
