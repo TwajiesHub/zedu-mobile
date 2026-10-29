@@ -2,6 +2,8 @@ import React, { useMemo } from 'react';
 import { StyleSheet, View, ViewStyle } from 'react-native';
 import { AppText } from '@/components/ui/text';
 import { useUserProfileStatus } from '@/hooks/useUserProfileStatus';
+import { useTheme } from '@/theme/ThemeProvider';
+import type { ThemeColors } from '@/theme/types';
 import { getUserStatusDisplay, UserStatusSource } from '@/utils/user-status';
 
 interface UserProfileStatusProps {
@@ -15,6 +17,8 @@ export const UserProfileStatus = ({
   userId,
   style,
 }: UserProfileStatusProps) => {
+  const { colors } = useTheme();
+  const styles = useMemo(() => createStyles(colors), [colors]);
   const fetchedStatus = useUserProfileStatus(userId);
   const localStatus = useMemo(() => getUserStatusDisplay(user), [user]);
   const status = fetchedStatus ?? localStatus;
@@ -35,24 +39,25 @@ export const UserProfileStatus = ({
   );
 };
 
-const styles = StyleSheet.create({
-  statusBubble: {
-    flexDirection: 'row',
-    alignItems: 'center',
-    backgroundColor: '#F0F2F5',
-    paddingHorizontal: 16,
-    paddingVertical: 8,
-    borderRadius: 20,
-    marginTop: 12,
-    maxWidth: '90%',
-  },
-  statusEmoji: {
-    fontSize: 16,
-    marginRight: 8,
-  },
-  statusText: {
-    fontSize: 14,
-    color: '#54656F',
-    flexShrink: 1,
-  },
-});
+const createStyles = (colors: ThemeColors) =>
+  StyleSheet.create({
+    statusBubble: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      backgroundColor: colors.reactionBackground,
+      paddingHorizontal: 16,
+      paddingVertical: 8,
+      borderRadius: 20,
+      marginTop: 12,
+      maxWidth: '90%',
+    },
+    statusEmoji: {
+      fontSize: 16,
+      marginRight: 8,
+    },
+    statusText: {
+      fontSize: 14,
+      color: colors.iconDefault,
+      flexShrink: 1,
+    },
+  });
