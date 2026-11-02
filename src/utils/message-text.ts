@@ -1,4 +1,8 @@
 import { CLIENT_BASE_URL } from '@/utils/client-url';
+import {
+  isVoiceMessageMedia,
+  type VoiceMediaFields,
+} from '@/utils/voice-message';
 
 export type MessageTextSegment = {
   type: 'text' | 'link';
@@ -815,6 +819,74 @@ export const getPlainMessageText = (html: string): string => {
 /** Single-line preview text for chat lists (HTML stripped, entities decoded). */
 export const formatPreviewMessage = (html: string): string =>
   getPlainMessageText(html).replace(/\s+/g, ' ').trim();
+
+type ChatListPreviewItem = {
+  preview_message?: string | null;
+  preview_thread?: unknown[] | null;
+};
+
+type ChatListPreviewMessage = {
+  message?: string | null;
+  created_at?: string | null;
+  media?: unknown;
+  file_data?: unknown;
+};
+
+/** Attachments off a last-message object (`media` is the API field; `file_data` is a legacy alias). */
+const getPreviewMessageMedia = (
+  message: ChatListPreviewMessage,
+): VoiceMediaFields[] => {
+  const attachments =
+    (message.media as VoiceMediaFields[] | undefined) ??
+    (message.file_data as VoiceMediaFields[] | undefined);
+  return Array.isArray(attachments) ? attachments : [];
+};
+
+/**
+ * Chats-list preview for a DM / group DM row.
+ *
+ * The backend renders the preview from the last message's attachment mime, and
+ * mobile voice notes carry a video/mp4 mime (AAC in an m4a container), so the
+ * server preview labels them "🎥 Video". When the newest message is a voice
+ * note with no visible text, override the label with the audio one; everything
+ * else keeps the server text so videos, images, files and GIFs are untouched
+ * (issue #128).
+ */
+export const getChatListPreview = (item: ChatListPreviewItem): string => {
+  const serverPreview = formatPreviewMessage(item.preview_message || '');
+
+  const messages = Array.isArray(item.preview_thread)
+    ? (item.preview_thread as ChatListPreviewMessage[])
+    : [];
+  if (messages.length === 0 || !serverPreview) {
+    return serverPreview;
+  }
+  // pick the most recent message by date so the newest message is found regardless of order
+  const newest = [...messages]
+    .sort(
+      (a, b) =>
+        new Date(a?.created_at || 0).getTime() -
+        new Date(b?.created_at || 0).getTime(),
+    )
+    .pop();
+  if (!newest) {
+    return serverPreview;
+  }
+
+  // Only media-only messages get relabelled; text messages keep the server text.
+  if (formatPreviewMessage(newest.message || '')) {
+    return serverPreview;
+  }
+
+  if (
+    getPreviewMessageMedia(newest).length > 0 &&
+    getPreviewMessageMedia(newest).every(isVoiceMessageMedia)
+  ) {
+    return '🎤 Voice message';
+  }
+
+  return serverPreview;
+};
 
 /** True when TipTap/mobile HTML has visible message body content. */
 export const hasMessageContent = (html?: string | null): boolean => {

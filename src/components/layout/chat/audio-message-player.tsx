@@ -11,6 +11,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 import FontAwesome5 from 'react-native-vector-icons/FontAwesome5';
 import { VoiceMedia, buildVoiceMediaFromUrl } from '@/utils/voice-message';
 import { voiceNotePlaybackService } from '@/services/voice-note-playback.service';
+import { voiceDurationService } from '@/services/voice-duration.service';
 
 const { width } = Dimensions.get('window');
 
@@ -99,7 +100,25 @@ export const AudioMessagePlayer = ({
   const isPlaying = isActiveTrack && playback.isPlaying;
   const isLoading = isActiveTrack && playback.isLoading;
   const currentMs = isActiveTrack ? playback.currentMs : 0;
-  const durationMs = isActiveTrack ? playback.durationMs : 0;
+  const activeDurationMs = isActiveTrack ? playback.durationMs : 0;
+
+  // Probe the file's real duration up front so the label isn't 0:00
+  // before the first play.
+  const [probeDurationMs, setProbeDurationMs] = useState(() =>
+    voiceDurationService.getCachedDurationMs(voiceMedia),
+  );
+  useEffect(() => {
+    let cancelled = false;
+    setProbeDurationMs(voiceDurationService.getCachedDurationMs(voiceMedia));
+    voiceDurationService.resolveDurationMs(voiceMedia).then(ms => {
+      if (!cancelled) setProbeDurationMs(ms);
+    });
+    return () => {
+      cancelled = true;
+    };
+  }, [voiceMedia]);
+  const durationMs =
+    isActiveTrack && activeDurationMs > 0 ? activeDurationMs : probeDurationMs;
 
   useEffect(() => {
     return voiceNotePlaybackService.subscribe(() => {

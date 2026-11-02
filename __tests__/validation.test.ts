@@ -10,7 +10,8 @@ describe('isValidEmail', () => {
     'first.last@sub.domain.org',
     'a@b.c',
     'a@b_c.com',
-    'a@b..c',
+    'first.last@mail.school.co.uk',
+    'user+tag@a-b.example.com',
   ])('accepts %s', email => {
     expect(isValidEmail(email)).toBe(true);
   });
@@ -25,6 +26,14 @@ describe('isValidEmail', () => {
     'a@.com',
     'a@com.',
     'a@b@c.com',
+    'a@b..c',
+    'a@...',
+    'a@-.-',
+    'a@.b.c',
+    'a@b.-c',
+    'a@b-.c',
+    'a@-b.com',
+    'a@b..com',
   ])('rejects "%s"', email => {
     expect(isValidEmail(email)).toBe(false);
   });

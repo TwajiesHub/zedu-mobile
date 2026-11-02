@@ -22,6 +22,7 @@ export interface Participant {
   default_avatar_url: string;
   email: string;
   user_id: string;
+  id?: string;
   username: string;
   is_admin?: boolean;
   online?: boolean;

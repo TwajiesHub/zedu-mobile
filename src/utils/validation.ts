@@ -7,8 +7,16 @@ export const isValidEmail = (email?: string | null) => {
     return false;
   }
   const domain = email.slice(email.indexOf('@') + 1);
-  // Needs a dot with at least one character on each side.
-  return domain.length > 2 && domain.slice(1, -1).includes('.');
+  // At least two dot-separated labels. Each label must be non-empty and must
+  // not start or end with a dash, so "a@b..c" and "a@-.-" are rejected.
+  const labels = domain.split('.');
+  return (
+    labels.length >= 2 &&
+    labels.every(
+      label =>
+        label.length > 0 && !label.startsWith('-') && !label.endsWith('-'),
+    )
+  );
 };
 
 export const validateSignup = (data: any) => {

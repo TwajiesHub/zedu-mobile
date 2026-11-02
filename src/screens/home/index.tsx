@@ -29,8 +29,8 @@ import GeneralNotificationConnection from '@/centrifugoo/general-notification-co
 import { PostRequest } from '@/utils/requests';
 import { RootStackParamList } from '@/navigation/navigator';
 import { UserAvatarWithStatus } from '@/components/ui/user-avatar-with-status';
-import { formatPreviewMessage } from '@/utils/message-text';
 import useShareZeduPrompt from '@/hooks/useShareZeduPrompt';
+import { getChatListPreview } from '@/utils/message-text';
 import { UserAvatar } from '@/screens/channels/user-avatar';
 
 const HomeScreen = () => {
@@ -397,9 +397,7 @@ const HomeScreen = () => {
                           numberOfLines={1}
                           style={styles.chatMsg}
                         >
-                          {formatPreviewMessage(
-                            item.preview_message || 'Chat with user',
-                          )}
+                          {getChatListPreview(item) || 'Chat with user'}
                         </AppText>
                         {!!item.thread_count && item.thread_count > 0 && (
                           <View style={styles.countBadge}>

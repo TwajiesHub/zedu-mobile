@@ -551,8 +551,8 @@ const GroupDetailsScreen = ({ navigation, route }: any) => {
           icon={groupDetails?.is_favourite ? 'star' : 'star-outline'}
           label={
             groupDetails?.is_favourite
-              ? 'Remove from Favourites'
-              : 'Add to Favourites'
+              ? 'Remove from Favorites'
+              : 'Add to Favorites'
           }
           color={groupDetails?.is_favourite ? colors.error : colors.primary}
           onPress={favorites}

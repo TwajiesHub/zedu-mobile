@@ -41,6 +41,8 @@ import {
 import { FilesListQueryFilters } from '@/types/files-api';
 import {
   filterFolders,
+  resolveUploaderIds,
+  uploaderApiOwner,
   sortFileResults,
 } from '@/utils/file-management-filters';
 
@@ -56,7 +58,13 @@ export const useFileManagement = (navigation: FileManagementNavigation) => {
   const [fileTypeFilter, setFileTypeFilter] = useState<FileCategory | null>(
     null,
   );
-  const [uploadedByFilter, setUploadedByFilter] = useState<string | null>(null);
+  const [uploadedByFilter, setUploadedByFilterValue] = useState<string | null>(
+    null,
+  );
+  // Set only when a member is picked from the sheet, not for typed text.
+  const [uploadedByMemberId, setUploadedByMemberId] = useState<string | null>(
+    null,
+  );
   const [dateFilter, setDateFilter] = useState<DateFilterKey>('any');
   const [activeSheet, setActiveSheet] = useState<ActiveFilterSheet>(null);
   const [searchQuery, setSearchQuery] = useState('');
@@ -89,19 +97,41 @@ export const useFileManagement = (navigation: FileManagementNavigation) => {
   const isFolderView = Boolean(openFolder);
   const isFoldersTab = activeTab === 'folders' && !isFolderView;
   const isFilesList = !isFoldersTab;
+  const setUploadedByFilter = useCallback(
+    (value: string | null, memberId: string | null = null) => {
+      setUploadedByFilterValue(value);
+      setUploadedByMemberId(value ? memberId : null);
+    },
+    [],
+  );
   const needsFolderPicker = moveSheetVisible || selectionMode;
   const currentUserId = user?.user_id ?? user?.id;
+
+  // Members the "Uploaded By" filter refers to; folders are matched by ID.
+  const uploadedByUserIds = useMemo(
+    () => resolveUploaderIds(orgMembers, uploadedByFilter, uploadedByMemberId),
+    [orgMembers, uploadedByFilter, uploadedByMemberId],
+  );
 
   const filterContext = useMemo(
     () => ({
       mode,
       sortBy,
       uploadedByFilter,
+      uploadedByUserIds,
       dateFilter,
       searchQuery,
       currentUserId,
     }),
-    [mode, sortBy, uploadedByFilter, dateFilter, searchQuery, currentUserId],
+    [
+      mode,
+      sortBy,
+      uploadedByFilter,
+      uploadedByUserIds,
+      dateFilter,
+      searchQuery,
+      currentUserId,
+    ],
   );
 
   const filesApiFilters = useMemo<FilesListQueryFilters>(
@@ -109,10 +139,19 @@ export const useFileManagement = (navigation: FileManagementNavigation) => {
       type:
         fileTypeFilter && fileTypeFilter !== 'all' ? fileTypeFilter : undefined,
       date_modified: dateFilter,
-      owner: uploadedByFilter,
+      owner:
+        uploaderApiOwner(orgMembers, uploadedByFilter, uploadedByMemberId) ??
+        undefined,
       file_name: debouncedFileNameSearch || undefined,
     }),
-    [fileTypeFilter, dateFilter, uploadedByFilter, debouncedFileNameSearch],
+    [
+      fileTypeFilter,
+      dateFilter,
+      orgMembers,
+      uploadedByFilter,
+      uploadedByMemberId,
+      debouncedFileNameSearch,
+    ],
   );
 
   useEffect(() => {

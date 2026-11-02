@@ -19,6 +19,7 @@ import {
 } from '@/utils/file-helpers';
 import { ActiveFilterSheet, DateFilterKey } from '@/types/file-management';
 import { useFileManagementStyles } from './file-management.styles';
+import { uploaderLabel } from '@/utils/file-management-filters';
 
 type FileFilterSheetProps = {
   activeSheet: ActiveFilterSheet;
@@ -27,10 +28,19 @@ type FileFilterSheetProps = {
   uploadedByFilter: string | null;
   dateFilter: DateFilterKey;
   sortBy: FileSortOption;
-  sheetUsers: Array<{ id: string; name?: string; username?: string }>;
+  sheetUsers: Array<{
+    id: string;
+    name?: string;
+    username?: string;
+    email?: string;
+  }>;
   onSheetSearchChange: (value: string) => void;
   onFileTypeFilterChange: (value: FileCategory | null) => void;
-  onUploadedByFilterChange: (value: string | null) => void;
+  // memberId is passed only when a member is picked, not for typed text.
+  onUploadedByFilterChange: (
+    value: string | null,
+    memberId?: string | null,
+  ) => void;
   onDateFilterChange: (value: DateFilterKey) => void;
   onSortByChange: (value: FileSortOption) => void;
   onClose: () => void;
@@ -178,13 +188,15 @@ const FileFilterSheet: React.FC<FileFilterSheetProps> = ({
                   )}
                 </TouchableOpacity>
                 {sheetUsers.map(member => {
-                  const label = member.name || member.username || '';
+                  const label = uploaderLabel(member);
                   return (
                     <TouchableOpacity
                       key={member.id}
                       style={styles.sheetItem}
                       onPress={() =>
-                        closeAnd(() => onUploadedByFilterChange(label))
+                        closeAnd(() =>
+                          onUploadedByFilterChange(label, String(member.id)),
+                        )
                       }
                     >
                       <View style={styles.sheetAvatar}>

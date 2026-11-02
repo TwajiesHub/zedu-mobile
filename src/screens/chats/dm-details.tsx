@@ -39,7 +39,7 @@ const DmDetailsScreen = ({ navigation, route }: any) => {
   const userData = directCallee;
 
   const handleDirectCall = async () => {
-    if (!directCallee?.user_id) return;
+    if (!(directCallee?.user_id ?? directCallee?.id)) return;
 
     const activeBuzzData = state?.buzzData;
     if (state?.isCallMinimized && activeBuzzData?.buzz_code) {
@@ -56,7 +56,9 @@ const DmDetailsScreen = ({ navigation, route }: any) => {
 
     setCallLoading(true);
     try {
-      const result = await BuzzService.createBuzz();
+      // Ring the other person in this DM, like every other call button does.
+      // createBuzz() only made an empty room with no one invited.
+      const result = await BuzzService.directBuzzCall(channel_id);
 
       if (result.error || !result.data) {
         ShowNotify('Error', result.error || 'Failed to create call');
@@ -190,7 +192,11 @@ const DmDetailsScreen = ({ navigation, route }: any) => {
           <UserProfileStatus user={userData} userId={userData?.user_id} />
 
           <View style={styles.quickActionRow}>
-            <TouchableOpacity style={styles.circleAction}>
+            <TouchableOpacity
+              style={styles.circleAction}
+              disabled={callLoading}
+              onPress={handleDirectCall}
+            >
               <View style={styles.actionIconCircle}>
                 <Ionicons
                   name="call-outline"
@@ -205,6 +211,7 @@ const DmDetailsScreen = ({ navigation, route }: any) => {
 
             <TouchableOpacity
               style={styles.circleAction}
+              disabled={callLoading}
               onPress={handleDirectCall}
             >
               <View style={styles.actionIconCircle}>
@@ -276,7 +283,12 @@ const DmDetailsScreen = ({ navigation, route }: any) => {
               <AppText variant="bold" style={styles.sectionTitle}>
                 Media, Links & Docs
               </AppText>
-              <TouchableOpacity style={styles.mediaCount}>
+              <TouchableOpacity
+                style={styles.mediaCount}
+                onPress={() =>
+                  navigation.navigate('MediaGalleryScreen', { channel_id })
+                }
+              >
                 <AppText size={13} style={{ color: colors.primary }}>
                   {groupDetails?.preview_media?.length}{' '}
                 </AppText>
