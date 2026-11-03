@@ -31,6 +31,7 @@ import { RootStackParamList } from '@/navigation/navigator';
 import { UserAvatarWithStatus } from '@/components/ui/user-avatar-with-status';
 import useShareZeduPrompt from '@/hooks/useShareZeduPrompt';
 import { getChatListPreview } from '@/utils/message-text';
+import { UserAvatar } from '@/screens/channels/user-avatar';
 
 const HomeScreen = () => {
   const navigation = useNavigation<DrawerNavigationProp<RootStackParamList>>();
@@ -83,6 +84,8 @@ const HomeScreen = () => {
         params: {
           participant_id: props?.participant_id,
           channel_id: props?.channel_id,
+          // Captured before the count is reset so the chat can mark new messages.
+          unread_count: props?.thread_count || 0,
         },
       });
     } else {
@@ -165,7 +168,7 @@ const HomeScreen = () => {
             </AppText>
           </TouchableOpacity>
 
-          <UserAvatarWithStatus user={user} />
+          <UserAvatarWithStatus user={user} badgeRingColor={colors.secondary} />
         </View>
 
         <View style={styles.searchBar}>
@@ -270,6 +273,10 @@ const HomeScreen = () => {
               renderItem={({ item }) => {
                 const isDM = item.channel_type === 'dm';
                 const participant = isDM ? item.participants?.[0] : null;
+                const otherUser =
+                  item.participants?.find(p => p.user_id !== user?.user_id) ??
+                  participant;
+                const isOtherUserOnline = Boolean(otherUser?.online);
 
                 const handleAvatarPress = () => {
                   if (!isDM || !participant) return;
@@ -297,15 +304,25 @@ const HomeScreen = () => {
                         style={styles.avatarWrapper}
                         onPress={handleAvatarPress}
                         activeOpacity={0.7}
-                        accessibilityLabel={`View ${participant.username}'s profile`}
+                        accessibilityLabel={`View ${
+                          participant.username
+                        }'s profile, ${
+                          isOtherUserOnline ? 'online' : 'offline'
+                        }`}
                         accessibilityRole="button"
                         accessibilityHint="Opens user profile"
                       >
-                        <Image
-                          source={{
-                            uri: item.avatar_url || item.default_avatar_url,
+                        <UserAvatar
+                          user={{
+                            avatar_url: item.avatar_url,
+                            default_avatar_url: item.default_avatar_url,
+                            online: isOtherUserOnline,
                           }}
-                          style={styles.chatAvatar}
+                          size={45}
+                          badgeSize={12}
+                          badgeRingColor={colors.background}
+                          fallbackName={item.username}
+                          disabled
                         />
                       </TouchableOpacity>
                     ) : (

@@ -14,6 +14,7 @@ export interface Chat {
   preview_thread: any;
   is_favourite: boolean;
   is_suggested: boolean;
+  online?: boolean;
 }
 
 export interface Participant {

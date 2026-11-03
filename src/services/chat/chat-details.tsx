@@ -92,6 +92,9 @@ const UseChatDetails = ({ channel_id }: Props) => {
   const [isFetchingMore, setIsFetchingMore] = useState(false);
   const [hasMore, setHasMore] = useState(true);
   const isFocusedRef = useRef(false);
+  // The conversation whose first page has loaded, so screens can tell when
+  // dmsChat belongs to this channel rather than the previous one.
+  const [loadedChannelId, setLoadedChannelId] = useState<string | null>(null);
 
   const fetchPage1 = useCallback(async () => {
     const { data, error } = await GetRequest(
@@ -113,6 +116,7 @@ const UseChatDetails = ({ channel_id }: Props) => {
         setHasMore(data.data.length >= 50);
       }
     }
+    setLoadedChannelId(channel_id);
   }, [channel_id, dispatch]);
 
   // Fires on focus (covers normal navigation and back-navigation)
@@ -172,7 +176,11 @@ const UseChatDetails = ({ channel_id }: Props) => {
     }
   }, [channel_id, page, isFetchingMore, hasMore, dispatch, state?.dmsChat]);
 
-  return { loadMore, isFetchingMore };
+  return {
+    loadMore,
+    isFetchingMore,
+    isInitialLoading: loadedChannelId !== channel_id,
+  };
 };
 
 export default UseChatDetails;

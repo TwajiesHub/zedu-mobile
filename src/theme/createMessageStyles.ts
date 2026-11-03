@@ -58,6 +58,37 @@ export function createMessageItemStyles(colors: ThemeColors, width: number) {
     messageWrapper: { maxWidth: '85%' },
     sentWrapper: { alignSelf: 'flex-end' },
     receivedWrapper: { alignSelf: 'flex-start' },
+    // Sender avatar sits in the wrapper's margin so bubbles stay aligned.
+    withSenderAvatarSent: { marginRight: normalize(28) + 6 },
+    withSenderAvatarReceived: { marginLeft: normalize(28) + 6 },
+    senderAvatarSent: {
+      position: 'absolute',
+      bottom: 0,
+      right: -(normalize(28) + 6),
+    },
+    senderAvatarReceived: {
+      position: 'absolute',
+      bottom: 0,
+      left: -(normalize(28) + 6),
+    },
+    replyBarSentWithAvatar: { marginRight: 8 + normalize(28) + 6 },
+    replyBarReceivedWithAvatar: { marginLeft: 8 + normalize(28) + 6 },
+    newMarker: {
+      flexDirection: 'row',
+      alignItems: 'center',
+      marginTop: 4,
+      marginBottom: 10,
+    },
+    newMarkerLine: {
+      flex: 1,
+      height: 1,
+      backgroundColor: colors.unreadMarker,
+    },
+    newMarkerText: {
+      color: colors.unreadMarker,
+      letterSpacing: 0.6,
+      marginLeft: 6,
+    },
     bubble: {
       padding: 4,
       borderRadius: 12,

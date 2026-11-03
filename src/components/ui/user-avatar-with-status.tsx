@@ -12,6 +12,7 @@ interface UserAvatarWithStatusProps {
   avatarSize?: number;
   showBadge?: boolean;
   showStatus?: boolean;
+  badgeRingColor?: string;
   onPress?: () => void;
   style?: ViewStyle;
 }
@@ -21,6 +22,7 @@ export const UserAvatarWithStatus = ({
   avatarSize = 40,
   showBadge = true,
   showStatus = true,
+  badgeRingColor,
   onPress,
   style,
 }: UserAvatarWithStatusProps) => {
@@ -31,6 +33,7 @@ export const UserAvatarWithStatus = ({
         user={user}
         size={avatarSize}
         showBadge={showBadge}
+        badgeRingColor={badgeRingColor}
         onPress={onPress}
       />
     </View>

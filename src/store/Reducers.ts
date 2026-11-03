@@ -305,6 +305,37 @@ const reducers = (state: AppState, action: Action): AppState => {
         ),
       };
 
+    case ACTIONS.UPDATE_USER_PRESENCE: {
+      const { user_id, online } = action.payload;
+      const isTarget = (person: any) =>
+        person &&
+        String(person.user_id ?? person.id) === String(user_id) &&
+        person.online !== online;
+      const patch = (people: any) =>
+        Array.isArray(people) && people.some(isTarget)
+          ? people.map(person =>
+              isTarget(person) ? { ...person, online } : person,
+            )
+          : people;
+
+      const dms = state.dms.map(chat => {
+        const participants = patch(chat.participants);
+        return participants === chat.participants
+          ? chat
+          : { ...chat, participants };
+      });
+      const participant = patch(state.participant);
+
+      if (
+        participant === state.participant &&
+        dms.every((chat, i) => chat === state.dms[i])
+      ) {
+        return state;
+      }
+
+      return { ...state, dms, participant };
+    }
+
     case ACTIONS.UPDATE_DM_COUNT:
       return {
         ...state,

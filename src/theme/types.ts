@@ -37,6 +37,9 @@ export type ThemeColors = {
   error: string;
   online: string;
   offline: string;
+  presenceOnline: string;
+  presenceOffline: string;
+  presenceOnlineText: string;
   bgSecondary: string;
   topNavigation: string;
   lightBlue: string;
@@ -52,6 +55,7 @@ export type ThemeColors = {
   chatSentBubble: string;
   chatReceivedBubble: string;
   chatHighlight: string;
+  unreadMarker: string;
   channelMentionBackground: string;
   channelMentionForeground: string;
 

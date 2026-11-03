@@ -47,6 +47,7 @@ export enum ACTIONS {
   UPDATE_DM_AND_MOVE_TO_TOP = 'UPDATE_DM_AND_MOVE_TO_TOP',
   UPDATE_MESSAGE_THREAD = 'UPDATE_MESSAGE_THREAD',
   RESET_DM_THREAD_COUNT = 'RESET_DM_THREAD_COUNT',
+  UPDATE_USER_PRESENCE = 'UPDATE_USER_PRESENCE',
   DELETE_DM_MESSAGE = 'DELETE_DM_MESSAGE',
   MEDIA = 'MEDIA',
   GROUP_DETAILS = 'GROUP_DETAILS',
@@ -286,6 +287,14 @@ interface UpdateMessageThreadAction {
 interface ResetDmCountAction {
   type: ACTIONS.RESET_DM_THREAD_COUNT;
   payload: string;
+}
+
+interface UpdateUserPresenceAction {
+  type: ACTIONS.UPDATE_USER_PRESENCE;
+  payload: {
+    user_id: string;
+    online: boolean;
+  };
 }
 
 interface DeleteDmMessageAction {
@@ -610,6 +619,7 @@ export type Action =
   | UpdateDmAndMoveToTopAction
   | UpdateMessageThreadAction
   | ResetDmCountAction
+  | UpdateUserPresenceAction
   | DeleteDmMessageAction
   | GroupDetailsAction
   | GroupCallbackAction

@@ -248,6 +248,9 @@ export function createChatDetailStyles(colors: ThemeColors) {
     moreBtn: { padding: 5 },
     headerAvatarContainer: { marginLeft: 5 },
     headerAvatar: { width: 36, height: 36, borderRadius: 18 },
+    headerPresenceText: { marginTop: 2 },
+    headerPresenceOnline: { color: colors.presenceOnlineText },
+    headerPresenceOffline: { color: colors.textSecondary },
     headerIconMore: {
       height: 20,
       objectFit: 'contain',

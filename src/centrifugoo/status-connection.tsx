@@ -1,4 +1,4 @@
-import { useEffect } from 'react';
+import { useEffect, useRef } from 'react';
 import { Centrifuge } from 'centrifuge';
 import axios from 'axios';
 import { ACTIONS } from '@/store/types';
@@ -8,6 +8,13 @@ import { BASE_URL, CONNECT_URL } from '@env';
 const StatusConnection = () => {
   const { state, dispatch } = useDataContext();
   const { orgId, user } = state;
+  const userRef = useRef(user);
+  const statusCallbackRef = useRef(state?.statusCallback);
+
+  useEffect(() => {
+    userRef.current = user;
+    statusCallbackRef.current = state?.statusCallback;
+  }, [user, state?.statusCallback]);
 
   const getConnectionToken = async () => {
     try {
@@ -41,16 +48,22 @@ const StatusConnection = () => {
     }
   };
 
+  // Latest token getters for the long-lived subscription below.
+  const tokenGetters = useRef({ getConnectionToken, getSubscriptionToken });
+  useEffect(() => {
+    tokenGetters.current = { getConnectionToken, getSubscriptionToken };
+  });
+
   useEffect(() => {
     if (!orgId || !state?.token) return;
 
     const centrifugeClient: any = new Centrifuge(CONNECT_URL, {
-      getToken: getConnectionToken,
+      getToken: () => tokenGetters.current.getConnectionToken(),
       debug: true,
     });
 
     const sub = centrifugeClient.newSubscription(orgId, {
-      getToken: () => getSubscriptionToken(orgId),
+      getToken: () => tokenGetters.current.getSubscriptionToken(orgId),
     });
 
     sub.on('publication', (ctx: any) => {
@@ -59,22 +72,43 @@ const StatusConnection = () => {
       // console.log(data, 'status centrifugo');
 
       if (data?.notification_type === 'profile_status_updated') {
+        const targetUserId =
+          data?.modification_ids?.user_id || data?.data?.user_id;
         const updatedData = data?.data?.status;
-        // Merge the new status fields into the user object
-        dispatch({
-          type: ACTIONS.USER,
-          payload: {
-            ...user,
-            text: updatedData?.text,
-            icon: updatedData?.emoji,
-            status_timeout: updatedData?.expiry,
-            online: updatedData?.online,
-          },
-        });
-        dispatch({
-          type: ACTIONS.STATUS_CALLBACK,
-          payload: !state?.statusCallback,
-        });
+
+        if (!targetUserId || !updatedData) return;
+
+        const currentUser = userRef.current;
+        const currentUserId = currentUser?.user_id ?? currentUser?.id;
+
+        if (currentUser && String(targetUserId) === String(currentUserId)) {
+          // Merge the new status fields into the user object
+          dispatch({
+            type: ACTIONS.USER,
+            payload: {
+              ...currentUser,
+              text: updatedData?.text,
+              icon: updatedData?.emoji,
+              status_timeout: updatedData?.expiry,
+              online: updatedData?.online,
+            },
+          });
+          dispatch({
+            type: ACTIONS.STATUS_CALLBACK,
+            payload: !statusCallbackRef.current,
+          });
+          return;
+        }
+
+        if (typeof updatedData?.online === 'boolean') {
+          dispatch({
+            type: ACTIONS.UPDATE_USER_PRESENCE,
+            payload: {
+              user_id: String(targetUserId),
+              online: updatedData.online,
+            },
+          });
+        }
       }
     });
 
@@ -89,7 +123,7 @@ const StatusConnection = () => {
       sub.unsubscribe();
       centrifugeClient.disconnect();
     };
-  }, [orgId, state?.token]);
+  }, [dispatch, orgId, state?.token]);
 
   return null;
 };
