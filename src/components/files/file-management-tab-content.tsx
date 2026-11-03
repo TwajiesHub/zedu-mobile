@@ -59,6 +59,7 @@ const FileManagementTabContent: React.FC<FileManagementTabContentProps> = ({
     openFileActions,
     handleFolderPress,
     handleFolderLongPress,
+    getFileOwnerName,
   } = vm;
 
   const topChrome = (
@@ -117,6 +118,7 @@ const FileManagementTabContent: React.FC<FileManagementTabContentProps> = ({
   const renderFileItem = ({ item }: { item: Media }) => (
     <FileGridItem
       file={item}
+      ownerName={getFileOwnerName(item.id)}
       isSelected={selectedFileIds.has(item.id)}
       isHighlighted={
         selectionMode

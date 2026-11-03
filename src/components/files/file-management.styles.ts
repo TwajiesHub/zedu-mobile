@@ -306,6 +306,12 @@ export function createFileManagementStyles(colors: ThemeColors) {
       paddingHorizontal: 10,
       paddingTop: 8,
     },
+    gridOwnerName: {
+      color: colors.textSecondary,
+      fontSize: 10,
+      paddingHorizontal: 10,
+      paddingTop: 2,
+    },
     gridSize: {
       color: colors.messageMeta,
       paddingHorizontal: 10,

@@ -9,7 +9,7 @@ import {
 import { FileActionKey } from '@/components/files/file-actions-sheet';
 import { FolderActionKey } from '@/components/files/folder-actions-sheet';
 import { PendingUploadFile } from '@/components/files/upload-confirmation-modal';
-import useFiles from '@/hooks/useFiles';
+import useFiles, { fetchFileInfoById } from '@/hooks/useFiles';
 import useFolders from '@/hooks/useFolders';
 import { useFileUpload } from '@/hooks/useFileUpload';
 import UseGetOrgMembers from '@/services/org/get-org-members';
@@ -32,6 +32,7 @@ import {
   FileMode,
   FileSortOption,
 } from '@/utils/file-helpers';
+import { resolveFileOwnerName } from '@/utils/file-owner-name';
 import {
   ActiveFilterSheet,
   DateFilterKey,
@@ -106,6 +107,10 @@ export const useFileManagement = (navigation: FileManagementNavigation) => {
   );
   const needsFolderPicker = moveSheetVisible || selectionMode;
   const currentUserId = user?.user_id ?? user?.id;
+
+  const [fileOwnerMap, setFileOwnerMap] = useState<Map<string, string>>(
+    new Map(),
+  );
 
   // Members the "Uploaded By" filter refers to; folders are matched by ID.
   const uploadedByUserIds = useMemo(
@@ -213,24 +218,37 @@ export const useFileManagement = (navigation: FileManagementNavigation) => {
     [sourceFiles, sortBy],
   );
 
+  // Fetch authoritative owner metadata for each visible file so the list
+  // view shows the real uploader name instead of "Unknown".
+  useEffect(() => {
+    const controller = new AbortController();
+    const fetchOwners = async () => {
+      const nextMap = new Map<string, string>();
+      await Promise.all(
+        filteredFiles.map(async file => {
+          const { info } = await fetchFileInfoById(file.id);
+          const apiOwner = info?.owner ?? null;
+          const owner = resolveFileOwnerName({
+            fileUserId: file.user_id,
+            apiOwner,
+            orgMembers,
+            currentUser: user,
+          });
+          nextMap.set(file.id, owner);
+        }),
+      );
+      if (!controller.signal.aborted) {
+        setFileOwnerMap(nextMap);
+      }
+    };
+    fetchOwners();
+    return () => controller.abort();
+  }, [filteredFiles, orgMembers, user]);
+
   const filteredFolders = useMemo(
     () => filterFolders(folders, filterContext),
     [folders, filterContext],
   );
-
-  const ownerMap = useMemo(() => {
-    const map = new Map<string, string>();
-    orgMembers.forEach(member => {
-      map.set(member.id, member.name || member.username || member.email);
-    });
-    if (currentUserId) {
-      map.set(
-        currentUserId,
-        user?.full_name || user?.username || user?.email || 'You',
-      );
-    }
-    return map;
-  }, [orgMembers, user, currentUserId]);
 
   const pickerFolders = useMemo(
     () => folders.filter(folder => !folder.deleted_at),
@@ -247,9 +265,9 @@ export const useFileManagement = (navigation: FileManagementNavigation) => {
   const activeHasMore = isFoldersTab ? hasMoreFolders : hasMore;
   const activeLoadMore = isFoldersTab ? loadMoreFolders : loadMore;
 
-  const getOwnerName = useCallback(
-    (userId: string) => ownerMap.get(userId) || 'Unknown',
-    [ownerMap],
+  const getFileOwnerName = useCallback(
+    (fileId: string) => fileOwnerMap.get(fileId) || 'Unknown',
+    [fileOwnerMap],
   );
 
   const isFileOwner = useCallback(
@@ -818,7 +836,7 @@ export const useFileManagement = (navigation: FileManagementNavigation) => {
     sheetSearch,
     setSheetSearch,
     closeFilterSheet,
-    getOwnerName,
+    getFileOwnerName,
     sheetUsers,
 
     // Lists

@@ -16,6 +16,7 @@ import { useTheme } from '@/theme/ThemeProvider';
 
 type FileGridItemProps = {
   file: Media;
+  ownerName: string;
   isSelected: boolean;
   isHighlighted: boolean;
   selectionMode: boolean;
@@ -25,6 +26,7 @@ type FileGridItemProps = {
 
 const FileGridItem: React.FC<FileGridItemProps> = ({
   file,
+  ownerName,
   isSelected,
   isHighlighted,
   selectionMode,
@@ -87,6 +89,9 @@ const FileGridItem: React.FC<FileGridItemProps> = ({
       )}
       <AppText size={12} numberOfLines={2} style={styles.gridName}>
         {decodeFileName(file.file_name)}
+      </AppText>
+      <AppText size={10} style={styles.gridOwnerName}>
+        {ownerName}
       </AppText>
       <AppText size={11} style={styles.gridSize}>
         {formatFileSize(file.size)}
