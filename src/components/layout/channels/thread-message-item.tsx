@@ -1,3 +1,4 @@
+import { SavedMessageIndicator } from '@/components/layout/chat/saved-message-indicator';
 import React, { useMemo, useState } from 'react';
 import { View, TouchableOpacity } from 'react-native';
 import { AppText } from '@/components/ui/text';
@@ -237,6 +238,7 @@ const ThreadMessageItem = ({
                 </View>
               )}
 
+              <SavedMessageIndicator item={item} reply />
               {hasMessageContent(item.message || item.text) && (
                 <View style={styles.messageTextContainer}>
                   <MessageContent

@@ -25,6 +25,7 @@ export type ChatStackParamList = {
     restore_participants?: any[];
     restore_dms_chat?: any[];
     fromNotification?: boolean;
+    highlight_thread_id?: string;
     unread_count?: number;
   };
   CallScreen: undefined;
@@ -32,6 +33,7 @@ export type ChatStackParamList = {
     participant_id?: string;
     channel_id: string;
     fromNotification?: boolean;
+    highlight_thread_id?: string;
   };
   GroupCallScreen: undefined;
   GroupAddMembersScreen: undefined;

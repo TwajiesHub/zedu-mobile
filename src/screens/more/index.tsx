@@ -37,6 +37,14 @@ const MoreScreen = () => {
         <View style={styles.content}>
           <View style={styles.card}>
             <MoreItem
+              title="Later"
+              icon="bookmark-outline"
+              onPress={() => navigation.navigate('Later')}
+              colors={colors}
+              styles={styles}
+              showDivider
+            />
+            <MoreItem
               title="Files"
               icon="folder-outline"
               onPress={openFiles}

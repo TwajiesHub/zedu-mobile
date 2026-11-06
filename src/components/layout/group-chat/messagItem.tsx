@@ -1,3 +1,4 @@
+import { SavedMessageIndicator } from '@/components/layout/chat/saved-message-indicator';
 import React, { useMemo, useState } from 'react';
 import { View, TouchableOpacity, Dimensions } from 'react-native';
 import { AppText } from '@/components/ui/text';
@@ -284,6 +285,7 @@ const MessageItem = ({
       )}
 
       <PinnedMessageBanner item={item} />
+      <SavedMessageIndicator item={item} />
 
       <View
         style={[

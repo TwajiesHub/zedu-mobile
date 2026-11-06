@@ -1,3 +1,4 @@
+import type { SavedMessagesMutation } from './saved-messages';
 import { Agent } from '@/types/agents';
 import { AuthFlow } from '@/types/auth';
 import { Channel } from '@/types/channel';
@@ -9,6 +10,7 @@ import { ThreadListItem } from '@/types/thread';
  * Grouped by feature domain
  */
 export enum ACTIONS {
+  SAVED_MESSAGES = 'SAVED_MESSAGES',
   // Returns the whole state to its initial values (used on sign-out).
   RESET_STATE = 'RESET_STATE',
   // === AUTH & GLOBAL ===
@@ -583,6 +585,7 @@ interface MentionUserAction {
 export type ResetStateAction = { type: ACTIONS.RESET_STATE };
 
 export type Action =
+  | { type: ACTIONS.SAVED_MESSAGES; payload: SavedMessagesMutation }
   // Global
   | ResetStateAction
   | TokenAction

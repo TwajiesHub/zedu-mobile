@@ -1,3 +1,4 @@
+import { SaveForLaterAction } from '@/components/layout/chat/save-for-later-action';
 import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import {
   View,
@@ -321,6 +322,11 @@ export const MessageAction = forwardRef<
             </View>
 
             <ScrollView bounces={false}>
+              <SaveForLaterAction
+                item={item}
+                kind="thread"
+                chatType="group_dm"
+              />
               <ActionItem
                 label="Reply"
                 icon={require('@/assets/icons/reply.png')}

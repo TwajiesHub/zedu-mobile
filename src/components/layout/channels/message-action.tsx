@@ -1,3 +1,4 @@
+import { SaveForLaterAction } from '@/components/layout/chat/save-for-later-action';
 import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import {
   View,
@@ -225,6 +226,15 @@ export const MessageAction = forwardRef<
             </View>
 
             <ScrollView bounces={false}>
+              <SaveForLaterAction
+                item={item}
+                kind={
+                  isOnThreadScreen || route.name === 'MentionThread'
+                    ? 'message'
+                    : 'thread'
+                }
+                chatType="channel"
+              />
               {!isOnThreadScreen && (
                 <ActionItem
                   label="Reply in thread"

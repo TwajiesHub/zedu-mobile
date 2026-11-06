@@ -1,7 +1,9 @@
+import { initialSavedMessages } from './saved-messages';
 import type { AppState } from './Reducers';
 
 /** The app state before anyone signs in. Signing out resets to this. */
 export const initialAppState: AppState = {
+  savedMessages: initialSavedMessages(),
   // auth
   token: null,
   user: null,

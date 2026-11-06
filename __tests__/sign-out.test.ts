@@ -13,7 +13,7 @@ jest.mock('@/utils/helper', () => ({
 }));
 
 describe('RESET_STATE', () => {
-  it('returns every field to its initial value after a signed-in session', () => {
+  it('resets user data and invalidates pending saved-message requests', () => {
     const signedIn = [
       { type: ACTIONS.TOKEN, payload: 'token-a' },
       { type: ACTIONS.USER, payload: { id: 'user-a' } },
@@ -30,7 +30,13 @@ describe('RESET_STATE', () => {
 
     const afterReset = reducers(signedIn, { type: ACTIONS.RESET_STATE });
 
-    expect(afterReset).toEqual(initialAppState);
+    expect(afterReset).toEqual({
+      ...initialAppState,
+      savedMessages: {
+        ...initialAppState.savedMessages,
+        generation: signedIn.savedMessages.generation + 1,
+      },
+    });
   });
 });
 

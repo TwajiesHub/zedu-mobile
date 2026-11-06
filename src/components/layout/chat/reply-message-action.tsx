@@ -1,3 +1,4 @@
+import { SaveForLaterAction } from '@/components/layout/chat/save-for-later-action';
 import React, { forwardRef, useEffect, useMemo, useState } from 'react';
 import {
   View,
@@ -449,6 +450,11 @@ export const ReplyMessageAction = forwardRef<
             </View>
 
             <ScrollView bounces={false}>
+              <SaveForLaterAction
+                item={item}
+                kind="message"
+                chatType={threadChatType}
+              />
               {!isOnThreadScreen && (
                 <ActionItem
                   label="Reply"

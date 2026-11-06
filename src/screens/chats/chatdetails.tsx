@@ -835,6 +835,20 @@ const ChatDetailScreen = ({ navigation }: any) => {
     navigation.goBack();
   };
 
+  // Later highlights a root only when it is already loaded; no older-history scan.
+  const savedThreadId = route?.params?.highlight_thread_id;
+  useEffect(() => {
+    if (!savedThreadId) return;
+    const index = dmsChat.findIndex(
+      (item: any) => item.thread_id === savedThreadId,
+    );
+    if (index < 0) return;
+    setHighlightMsgId(savedThreadId);
+    scrollChatToIndex(flatListRef, index, dmsChat);
+    const timer = setTimeout(() => setHighlightMsgId(null), 2500);
+    return () => clearTimeout(timer);
+  }, [savedThreadId, dmsChat]);
+
   if ((returnLoading && fromNotification) || !channel_id) return null;
   //
 

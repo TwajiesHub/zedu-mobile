@@ -1,3 +1,4 @@
+import LaterScreen from '@/screens/later';
 import WorkspaceDrawer from '@/components/layout/workspace-drawer';
 import { useTheme } from '@/theme/ThemeProvider';
 import {
@@ -110,6 +111,7 @@ import ChannelConnection from '@/centrifugoo/channel-connection';
 import DMConnection from '@/centrifugoo/dm-connection';
 
 export type RootStackParamList = {
+  Later: undefined;
   Welcome: undefined;
   Signup: undefined;
   Signin: undefined;
@@ -853,6 +855,7 @@ export const AppNavigator = ({ currentRoute }: AppNavigatorProps) => {
             <Stack.Screen name="DirectCallStack" component={DirectCallStack} />
             <Stack.Screen name="SettingStack" component={SettingStack} />
             <Stack.Screen name="MentionStack" component={MentionStack} />
+            <Stack.Screen name="Later" component={LaterScreen} />
             <Stack.Screen name="FileStack" component={FileStack} />
           </Stack.Group>
         )}

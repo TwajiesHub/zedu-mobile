@@ -20,6 +20,7 @@ export type ChannelStackParamList = {
     | {
         channel_id?: string;
         fromNotification?: boolean;
+        highlight_thread_id?: string;
       }
     | undefined;
   ChannelDetails: {

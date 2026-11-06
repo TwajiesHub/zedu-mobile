@@ -1,3 +1,4 @@
+import { SavedMessageIndicator } from '@/components/layout/chat/saved-message-indicator';
 import React, { useMemo, useState } from 'react';
 import { View, TouchableOpacity, Dimensions } from 'react-native';
 import { AppText } from '@/components/ui/text';
@@ -278,6 +279,7 @@ const MessageItem = ({
 
         <View style={styles.messageColumn}>
           <PinnedMessageBanner item={item} />
+          <SavedMessageIndicator item={item} />
           <TouchableOpacity
             activeOpacity={0.8}
             onLongPress={() => handlePress(item)}

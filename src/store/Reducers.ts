@@ -1,3 +1,8 @@
+import {
+  initialSavedMessages,
+  reduceSavedMessages,
+  SavedMessagesState,
+} from './saved-messages';
 import { Chat, Group, Participant } from '@/types/chats';
 import { ACTIONS, Action } from './types';
 import { initialAppState } from './initial-state';
@@ -14,6 +19,7 @@ import {
 } from '@/utils/group-participants';
 
 export interface AppState {
+  savedMessages: SavedMessagesState;
   // auth
   token: string | null;
   orgId: string | null;
@@ -91,13 +97,38 @@ export interface AppState {
 const reducers = (state: AppState, action: Action): AppState => {
   switch (action.type) {
     case ACTIONS.RESET_STATE:
-      return initialAppState;
+      return {
+        ...initialAppState,
+        savedMessages: initialSavedMessages(
+          (state.savedMessages?.generation || 0) + 1,
+        ),
+      };
     case ACTIONS.USER:
       return { ...state, user: action.payload };
     case ACTIONS.TOKEN:
-      return { ...state, token: action.payload };
+      return {
+        ...state,
+        token: action.payload,
+        savedMessages:
+          state.token === action.payload
+            ? state.savedMessages
+            : initialSavedMessages((state.savedMessages?.generation || 0) + 1),
+      };
+    case ACTIONS.SAVED_MESSAGES:
+      if (state.orgId !== action.payload.orgId) return state;
+      return {
+        ...state,
+        savedMessages: reduceSavedMessages(state.savedMessages, action.payload),
+      };
     case ACTIONS.ORG_ID:
-      return { ...state, orgId: action.payload };
+      return {
+        ...state,
+        orgId: action.payload,
+        savedMessages:
+          state.orgId === action.payload
+            ? state.savedMessages
+            : initialSavedMessages((state.savedMessages?.generation || 0) + 1),
+      };
     case ACTIONS.SUCCESS:
       return { ...state, success: action.payload };
     case ACTIONS.ERROR:
