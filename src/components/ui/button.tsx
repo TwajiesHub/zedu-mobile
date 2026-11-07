@@ -5,8 +5,8 @@ import {
   ViewStyle,
   ActivityIndicator,
 } from 'react-native';
-import { AppText } from './text';
-import { normalize } from '../../utils/normalize';
+import { AppText } from '@/components/ui/text';
+import { normalize } from '@/utils/normalize';
 import { useTheme } from '@/theme/ThemeProvider';
 
 interface AppButtonProps {
@@ -62,12 +62,16 @@ export const AppButton: React.FC<AppButtonProps> = ({
         secondaryText: {
           color: colors.primary,
         },
+        disabled: { opacity: 0.6 },
       }),
     [colors],
   );
 
   return (
     <TouchableOpacity
+      accessibilityRole="button"
+      accessibilityLabel={title}
+      accessibilityState={{ disabled: loading || disabled, busy: loading }}
       onPress={onPress}
       activeOpacity={0.8}
       disabled={loading || disabled}
@@ -79,7 +83,7 @@ export const AppButton: React.FC<AppButtonProps> = ({
           ? styles.dangerBtn
           : styles.secondaryBtn,
         style,
-        disabled && { opacity: 0.6 },
+        disabled && styles.disabled,
       ]}
     >
       {loading && (

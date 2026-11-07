@@ -4,7 +4,7 @@ import axios, {
   InternalAxiosRequestConfig,
 } from 'axios';
 import { BASE_URL } from '@env';
-import { clearAllData, retrieveToken } from './helper';
+import { clearAllData, retrieveToken } from '@/utils/helper';
 
 const apiClient = axios.create({
   baseURL: `${BASE_URL}`,
@@ -23,7 +23,7 @@ apiClient.interceptors.request.use(
 
 export const request = async <T = any>(
   config: AxiosRequestConfig,
-): Promise<{ data: T | null; error: string | null }> => {
+): Promise<{ data: T | null; error: string | null; status?: number }> => {
   try {
     const response: AxiosResponse<T> = await apiClient(config);
     return { data: response.data, error: null };
@@ -39,7 +39,11 @@ export const request = async <T = any>(
       // Logic for logout or redirect goes here
     }
 
-    return { data: null, error: message };
+    return {
+      data: null,
+      error: message,
+      ...(error.response?.status ? { status: error.response.status } : {}),
+    };
   }
 };
 

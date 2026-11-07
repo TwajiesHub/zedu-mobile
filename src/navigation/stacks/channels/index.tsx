@@ -1,3 +1,5 @@
+import ChannelWebhookScreen from '@/screens/channels/webhooks';
+import WebhookHistoryScreen from '@/screens/channels/webhooks/history';
 import React from 'react';
 import { createStackNavigator } from '@react-navigation/stack';
 import ChannelHome from '@/screens/channels';
@@ -15,6 +17,9 @@ import PinnedMessagesScreen from '@/screens/chats/pinned-messages';
 import type { PinScope } from '@/utils/resolve-pinned-messages';
 
 export type ChannelStackParamList = {
+  ChannelWebhook: { channel_id: string };
+  WebhookHistory: { channel_id: string; webhook_id: string };
+
   ChannelList: undefined;
   ChannelChat:
     | {
@@ -65,6 +70,8 @@ export const ChannelStack = () => (
     }}
   >
     <Stack.Screen name="ChannelList" component={ChannelHome} />
+    <Stack.Screen name="ChannelWebhook" component={ChannelWebhookScreen} />
+    <Stack.Screen name="WebhookHistory" component={WebhookHistoryScreen} />
     <Stack.Screen name="ChannelChat" component={ChannelChatScreen} />
     <Stack.Screen name="ChannelDetails" component={ChannelDetailScreen} />
     <Stack.Screen name="ChannelCall" component={ChannelCallScreen} />

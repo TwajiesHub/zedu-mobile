@@ -7,12 +7,13 @@ import {
   ViewStyle,
   TextStyle,
 } from 'react-native';
-import { AppText } from './text';
+import { AppText } from '@/components/ui/text';
 import { normalize } from '@/utils/normalize';
 import Icon from 'react-native-vector-icons/MaterialCommunityIcons';
 import { useTheme } from '@/theme/ThemeProvider';
 
 interface AppInputProps {
+  accessibilityLabel?: string;
   label?: string;
   placeholder: string;
   value: string;
@@ -31,6 +32,7 @@ interface AppInputProps {
 }
 
 export const AppInput: React.FC<AppInputProps> = ({
+  accessibilityLabel,
   label,
   placeholder,
   value,
@@ -113,6 +115,7 @@ export const AppInput: React.FC<AppInputProps> = ({
         ]}
       >
         <TextInput
+          accessibilityLabel={accessibilityLabel || label || placeholder}
           style={[styles.input, inputStyle]}
           placeholder={placeholder}
           placeholderTextColor={colors.textSecondary}
