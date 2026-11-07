@@ -10,7 +10,7 @@
  * and pass either way.
  */
 import React from 'react';
-import { TouchableOpacity } from 'react-native';
+import { TouchableOpacity, InteractionManager } from 'react-native';
 import renderer, { act } from 'react-test-renderer';
 import DmMessageItem from '@/components/layout/chat/messagItem';
 import GroupMessageItem from '@/components/layout/group-chat/messagItem';
@@ -93,12 +93,18 @@ jest.mock('@/components/layout/channels/channel-event-message-block', () => ({
 jest.mock('@/components/ui/bottom-sheet', () => {
   const mockReact = require('react');
   const calls: any[] = [];
-  const Sheet = mockReact.forwardRef((props: any, _ref: any) => {
+  const Sheet = mockReact.forwardRef((props: any, ref: any) => {
+    mockReact.useImperativeHandle(ref, () => ({
+      expand: mockExpand,
+      close: jest.fn(),
+    }));
     calls.push(props);
     return null;
   });
   return { __esModule: true, default: Sheet, __calls: calls };
 });
+
+const mockExpand = jest.fn();
 
 const sheetCalls: any[] = jest.requireMock(
   '@/components/ui/bottom-sheet',
@@ -108,6 +114,12 @@ const sheetCalls: any[] = jest.requireMock(
 // of the test output but let every other warning through.
 const realWarn = console.warn;
 beforeAll(() => {
+  jest
+    .spyOn(InteractionManager, 'runAfterInteractions')
+    .mockImplementation((callback: any) => {
+      callback();
+      return { cancel: jest.fn() } as any;
+    });
   jest.spyOn(console, 'warn').mockImplementation((message, ...rest) => {
     if (String(message).includes('InteractionManager has been deprecated')) {
       return;
@@ -118,6 +130,7 @@ beforeAll(() => {
 afterAll(() => jest.restoreAllMocks());
 beforeEach(() => {
   sheetCalls.length = 0;
+  mockExpand.mockClear();
 });
 
 // --- fixtures
@@ -218,24 +231,31 @@ describe.each(BUBBLES)('%s message bubble', (_name, Bubble, kinds) => {
 });
 
 // --- action sheets
-// The DM screen always mounts MessageAction, with no message selected until a
-// long-press. The sheet must stay closed then and open as soon as a message is
-// selected (an imperative expand() right after mounting is ignored on slow
-// devices).
+// The wrapper starts closed. Message actions expand it through its ref after
+// interactions settle, and must not expand it when no message is selected.
 describe.each([
   ['MessageAction', MessageAction],
   ['ReplyMessageAction', ReplyMessageAction],
 ])('%s sheet', (_name, Sheet: any) => {
   const mountedWith = (item: any) => {
-    render(<Sheet item={item} onClose={jest.fn()} handleEdit={jest.fn()} />);
+    render(
+      <Sheet
+        ref={React.createRef()}
+        item={item}
+        onClose={jest.fn()}
+        handleEdit={jest.fn()}
+      />,
+    );
     return sheetCalls[sheetCalls.length - 1];
   };
 
   it('mounts closed while no message is selected', () => {
-    expect(mountedWith(null).index).toBe(-1);
+    mountedWith(null);
+    expect(mockExpand).not.toHaveBeenCalled();
   });
 
   it('mounts expanded once a message is selected', () => {
-    expect(mountedWith({ thread_id: 'thread-1', message: 'hi' }).index).toBe(0);
+    mountedWith({ thread_id: 'thread-1', message: 'hi' });
+    expect(mockExpand).toHaveBeenCalledTimes(1);
   });
 });

@@ -4,7 +4,7 @@
 
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
-import { OneSignal } from 'react-native-onesignal';
+import { requestAndroidNotificationPermission } from '@/services/android-fcm.service';
 import { ThemeProvider } from '@/theme/ThemeProvider';
 import { requestAppPermissions } from '@/lib/permissions';
 import WelcomeScreen from '@/screens/welcomescreen';
@@ -18,6 +18,11 @@ jest.mock('@react-navigation/native', () => ({
   useNavigation: () => ({ navigate: jest.fn() }),
 }));
 
+jest.mock('@/services/android-fcm.service', () => ({
+  ...jest.requireActual('@/services/android-fcm.service'),
+  requestAndroidNotificationPermission: jest.fn(),
+}));
+
 const mockRequestAppPermissions = requestAppPermissions as jest.MockedFunction<
   typeof requestAppPermissions
 >;
@@ -26,9 +31,8 @@ const mockRequestAppPermissions = requestAppPermissions as jest.MockedFunction<
 jest.setTimeout(30000);
 
 describe('WelcomeScreen permissions', () => {
-  const requestNotifications = jest.spyOn(
-    OneSignal.Notifications,
-    'requestPermission',
+  const requestNotifications = jest.mocked(
+    requestAndroidNotificationPermission,
   );
 
   beforeEach(() => {
