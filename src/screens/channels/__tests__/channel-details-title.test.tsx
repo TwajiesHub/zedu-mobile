@@ -97,6 +97,20 @@ describe('ChannelDetailsScreen title', () => {
     );
   });
 
+  it('offers Webhooks when the role grants create:webhooks', async () => {
+    mockState.current.orgData = {
+      user_role: { permission_list: { 'create:webhooks': true } },
+    };
+    expect(await renderScreen()).toContain('Webhooks');
+  });
+
+  it('hides Webhooks when a known role lacks create:webhooks', async () => {
+    mockState.current.orgData = {
+      user_role: { permission_list: { 'read:channels': true } },
+    };
+    expect(await renderScreen()).not.toContain('Webhooks');
+  });
+
   it('shows no stray "#" while the channel details are still loading', async () => {
     mockState.current = { ...mockState.current, channelDetails: undefined };
 

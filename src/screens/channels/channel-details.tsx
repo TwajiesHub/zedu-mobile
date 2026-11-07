@@ -1,3 +1,4 @@
+import { canManageChannelWebhooks } from '@/lib/channel-webhook-permissions';
 import React, {
   useCallback,
   useEffect,
@@ -706,6 +707,15 @@ const ChannelDetailsScreen = ({ navigation, route }: any) => {
         <View style={styles.divider} />
 
         {/* Settings Actions */}
+        {canManageChannelWebhooks(state.orgData) && (
+          <ActionItem
+            icon="code-slash-outline"
+            label="Webhooks"
+            onPress={() =>
+              navigation.navigate('ChannelWebhook', { channel_id })
+            }
+          />
+        )}
         <ActionItem
           icon="notifications-outline"
           label="Notifications"
