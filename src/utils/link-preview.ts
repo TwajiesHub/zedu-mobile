@@ -105,7 +105,9 @@ export async function fetchLinkPreview(
     const title = (data?.title || '').trim();
     let hostname = '';
     try {
-      hostname = new URL(href).hostname;
+      // RN's URL implementation has this getter, but its global typings omit it.
+      hostname = (new URL(href) as URL & { readonly hostname: string })
+        .hostname;
     } catch {
       hostname = href;
     }

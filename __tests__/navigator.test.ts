@@ -4,7 +4,7 @@
 
 import React from 'react';
 import ReactTestRenderer from 'react-test-renderer';
-import { OneSignal } from 'react-native-onesignal';
+import { requestAndroidNotificationPermission } from '@/services/android-fcm.service';
 import { requestAppPermissions } from '@/lib/permissions';
 import App from '../App';
 
@@ -12,6 +12,11 @@ import App from '../App';
 // the test doesn't depend on native permission stubs.
 jest.mock('@/lib/permissions', () => ({
   requestAppPermissions: jest.fn(),
+}));
+
+jest.mock('@/services/android-fcm.service', () => ({
+  ...jest.requireActual('@/services/android-fcm.service'),
+  requestAndroidNotificationPermission: jest.fn(),
 }));
 
 const mockRequestAppPermissions = requestAppPermissions as jest.MockedFunction<
@@ -22,9 +27,8 @@ const mockRequestAppPermissions = requestAppPermissions as jest.MockedFunction<
 jest.setTimeout(30000);
 
 describe('notification permission at launch', () => {
-  const requestNotifications = jest.spyOn(
-    OneSignal.Notifications,
-    'requestPermission',
+  const requestNotifications = jest.mocked(
+    requestAndroidNotificationPermission,
   );
 
   beforeEach(() => {
